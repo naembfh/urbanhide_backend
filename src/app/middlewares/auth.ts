@@ -21,7 +21,9 @@ interface JwtPayload {
 
 const auth = (requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    console.log('auth')
     const token = req.headers.authorization?.split(" ")[1];
+    console.log(token)
 
     if (!token) {
       throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
