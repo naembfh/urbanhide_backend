@@ -4,10 +4,21 @@ import config from "../../config";
 import AppError from "../../errors/AppError";
 import { TLoginUser, TUserAuth, UserRole } from "./userAuth.interface";
 import { UserAuth } from "./userAuth.model";
+import { Express } from 'express-serve-static-core';
+import cloudinary from "../../config/cloudinaryConfig";
 
-const signupService = async (payload: TUserAuth) => {
-  console.log('userservc')
-  const newUser = await UserAuth.create(payload);
+const signupService = async (payload: TUserAuth, file?: Express.Multer.File) => {
+  let imageUrl = '';
+
+  // Upload image if a file is provided
+  if (file) {
+    const result = await cloudinary.uploader.upload(file.path);
+    imageUrl = result.secure_url;
+  }
+
+  // const newUser = await UserAuth.create(payload);
+  const newUser = new UserAuth({ ...payload, img: imageUrl });
+  await newUser.save();
   return newUser;
 };
 
@@ -88,7 +99,8 @@ const updateUserRoleService = async (userId: string, newRole: UserRole) => {
 
 const updateUserProfile = async (
   userId: string,
-  updatedData: Partial<TUserAuth>
+  updatedData: Partial<TUserAuth>,
+  file?: Express.Multer.File
 ) => {
   const user = await UserAuth.findById(userId);
 
@@ -96,16 +108,23 @@ const updateUserProfile = async (
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  // Update user fields with the provided data
+  // Handle image upload if a new file is provided
+  if (file) {
+    const result = await cloudinary.uploader.upload(file.path);
+    user.img = result.secure_url;
+  }
+
+  // Update other user fields
   user.name = updatedData.name || user.name;
+  user.email = updatedData.email || user.email;
   user.phone = updatedData.phone || user.phone;
   user.address = updatedData.address || user.address;
-  user.img = updatedData.img || user.img;
 
   await user.save();
 
   return user;
 };
+
 
 export const UserAuthService = {
   signupService,

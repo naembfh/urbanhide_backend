@@ -5,9 +5,11 @@ import AppError from "../../errors/AppError";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { UserAuthService } from "./userAuth.service";
+import { UserAuth } from "./userAuth.model";
+import { Express } from 'express-serve-static-core';
 
 const signup = catchAsync(async (req, res) => {
-  const user = await UserAuthService.signupService(req.body);
+  const user = await UserAuthService.signupService(req.body, req.file as Express.Multer.File);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -79,11 +81,15 @@ const getAllUsers = catchAsync(async (req, res) => {
 });
 
 const updateUserRole = catchAsync(async (req, res) => {
-  const { userId, newRole } = req.body;
+
+
+  const { userId, role } = req.body;
+
   const updatedUser = await UserAuthService.updateUserRoleService(
     userId,
-    newRole
+    role
   );
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -93,19 +99,33 @@ const updateUserRole = catchAsync(async (req, res) => {
 });
 
 const updateProfile = catchAsync(async (req, res) => {
-  const userId = req.user.userId; 
-  const updatedData = req.body; 
+  const userId = req.user.userId; // Get user ID from authenticated user context
+  const updatedData = req.body;
+  const file = req.file as Express.Multer.File; // Image file uploaded
 
-  const updatedUser = await UserAuthService.updateUserProfile(
-    userId,
-    updatedData
-  );
+  const updatedUser = await UserAuthService.updateUserProfile(userId, updatedData, file);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "Profile updated successfully",
-    data: updatedUser, 
+    data: updatedUser,
+  });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  const user = await UserAuth.findByIdAndDelete(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User deleted successfully",
+    data: user,
   });
 });
 
@@ -116,4 +136,5 @@ export const userAuthControllers = {
   getAllUsers,
   updateUserRole,
   updateProfile,
+  deleteUser,
 };
