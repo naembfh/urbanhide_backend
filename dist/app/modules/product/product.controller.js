@@ -32,6 +32,19 @@ const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(500).json({ message: error.message });
     }
 });
+const getProductById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { productId } = req.params;
+        const product = yield product_service_1.productServices.getProductByIdService(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        res.status(200).json(product);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 // Controller to update a product
 const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -60,4 +73,5 @@ exports.productControllers = {
     getAllProducts,
     updateProduct,
     deleteProduct,
+    getProductById
 };

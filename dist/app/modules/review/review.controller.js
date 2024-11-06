@@ -17,8 +17,10 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const review_service_1 = require("./review.service");
+const mongoose_1 = require("mongoose");
 // Handle creating a review
 const createReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('review');
     const user = req.user;
     if (!user) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -34,7 +36,11 @@ const createReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 }));
 // Handle showing reviews
 const showReviews = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const reviews = yield review_service_1.ReviewService.showReviews();
+    const { productId } = req.params;
+    console.log(productId);
+    // Convert productId to ObjectId if it exists and is a string
+    const productObjectId = productId && typeof productId === "string" ? new mongoose_1.Types.ObjectId(productId) : undefined;
+    const reviews = yield review_service_1.ReviewService.showReviews(productObjectId);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

@@ -8,6 +8,8 @@ const productSchema = new mongoose_1.Schema({
     price: { type: Number, required: true },
     stockQuantity: { type: Number, required: true },
     category: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Category', required: true },
+    gender: { type: String, enum: ['Men', 'Women', 'Unisex'] },
+    rating: { type: Number, default: 0 },
     images: [{ type: String }],
 }, {
     timestamps: true,

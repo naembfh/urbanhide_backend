@@ -1,74 +1,63 @@
-// /controllers/order.controller.js
-
+import catchAsync from "../../utils/catchAsync";
 import { orderService } from "./order.service";
 
+const createOrder = catchAsync(async (req, res) => {
+  const { shippingDetails, cartItems, totalAmount, email } = req.body;
 
-const createOrder = async (req, res) => {
-  try {
-    const { items, total, email, shippingDetails } = req.body;
-
-    if (!items || !total || !email || !shippingDetails) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const orderData = { items, total, email, shippingDetails };
-    const order = await orderService.createOrder(orderData);
-    res.status(201).json(order);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to create order" });
+  if (!shippingDetails || !cartItems || !totalAmount || !email) {
+    return res.status(400).json({ message: "Missing required fields." });
   }
-};
 
-const getOrderHistory = async (req, res) => {
-  try {
-    const { email } = req.query;
+  const order = await orderService.createOrder({
+    shippingDetails,
+    cartItems,
+    totalAmount,
+    email,
+  });
 
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
+  res.status(201).json({ message: "Order created successfully", order });
+});
 
-    const orders = await orderService.getOrderHistory(email);
-    res.status(200).json(orders);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch order history" });
+const getOrderHistory = catchAsync(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(400).json({ error: "User is required" });
   }
-};
 
-const updateOrderStatus = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const { status } = req.body;
+  const orders = await orderService.getOrderHistory(user);
 
-    if (!["Pending", "Shipped", "Received", "Cancelled"].includes(status)) {
-      return res.status(400).json({ error: "Invalid status value" });
-    }
+  res.status(200).json(orders);
+});
 
-    const updatedOrder = await orderService.updateOrderStatus(orderId, status);
+const updateOrderStatus = catchAsync(async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
 
-    if (!updatedOrder) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    res.status(200).json(updatedOrder);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to update order status" });
+  if (!["Pending", "Shipped", "Received", "Cancelled"].includes(status)) {
+    return res.status(400).json({ error: "Invalid status value" });
   }
-};
 
-const createCheckoutSession = async (req, res) => {
+  const updatedOrder = await orderService.updateOrderStatus(orderId, status);
+
+  if (!updatedOrder) {
+    return res.status(404).json({ error: "Order not found" });
+  }
+
+  res.status(200).json(updatedOrder);
+});
+
+const createCheckoutSession = catchAsync(async (req, res) => {
   const { cartItems, shippingDetails, email } = req.body;
 
-  try {
-    const session = await orderService.createStripeSession(cartItems, shippingDetails, email);
-    res.status(200).json({ id: session.id });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to create Stripe session" });
-  }
-};
+  const session = await orderService.createStripeSession({
+    cartItems,
+    shippingDetails,
+    email,
+  });
+
+  res.status(200).json({ id: session.id });
+});
 
 export const orderControllers = {
   createOrder,

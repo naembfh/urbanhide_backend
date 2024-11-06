@@ -39,6 +39,10 @@ const addProductService = (data, files) => __awaiter(void 0, void 0, void 0, fun
 const getAllProductsService = () => __awaiter(void 0, void 0, void 0, function* () {
     return yield product_model_1.Product.find({}).populate('category');
 });
+// Service to get a product by ID
+const getProductByIdService = (productId) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield product_model_1.Product.findById(productId).populate('category');
+});
 // Service to update a product
 const updateProductService = (productId, data, files) => __awaiter(void 0, void 0, void 0, function* () {
     const imageUrls = data.images || [];
@@ -59,4 +63,5 @@ exports.productServices = {
     getAllProductsService,
     updateProductService,
     deleteProductService,
+    getProductByIdService
 };

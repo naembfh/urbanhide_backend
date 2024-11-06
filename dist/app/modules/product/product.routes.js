@@ -11,6 +11,7 @@ const auth_1 = __importDefault(require("../../middlewares/auth"));
 const router = express_1.default.Router();
 router.post('/create', (0, auth_1.default)(["ADMIN"]), multerConfig_1.default.array('images', 5), product_controller_1.productControllers.addProduct);
 router.get('/all', product_controller_1.productControllers.getAllProducts);
+router.get('/:productId', product_controller_1.productControllers.getProductById);
 router.put('/edit/:productId', (0, auth_1.default)(["ADMIN"]), multerConfig_1.default.array('images', 5), product_controller_1.productControllers.updateProduct);
 router.delete('/delete/:productId', (0, auth_1.default)(["ADMIN"]), product_controller_1.productControllers.deleteProduct);
 exports.ProductRoutes = router;

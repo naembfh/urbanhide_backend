@@ -20,7 +20,7 @@ const createReview = async (
 // Show reviews (optionally filter by user or rating)
 const showReviews = async (productId?: Types.ObjectId) => {
   const query = productId ? { productId } : {};
-  console.log(query)
+
   const reviews = await Review.find(query)
     .populate({
       path: "user",

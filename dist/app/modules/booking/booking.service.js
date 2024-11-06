@@ -30,7 +30,6 @@ const createBooking = (userId, bookingData) => __awaiter(void 0, void 0, void 0,
     const service = yield service_model_1.Service.findById(serviceId);
     if (!service)
         throw new Error("Service not found");
-    console.log(service);
     const slot = yield slot_model_1.Slot.findById(slotId);
     if (!slot)
         throw new Error("Slot not found");
@@ -181,8 +180,7 @@ const getUserBookings = (userId) => __awaiter(void 0, void 0, void 0, function* 
 const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2024-06-20",
 });
-const createCheckoutSession = (bookings, // Ensure this is an array of BookingItem
-customerEmail) => __awaiter(void 0, void 0, void 0, function* () {
+const createCheckoutSession = (bookings, customerEmail) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const session = yield stripe.checkout.sessions.create({
             payment_method_types: ["card"],
@@ -196,7 +194,7 @@ customerEmail) => __awaiter(void 0, void 0, void 0, function* () {
                         name: booking.service.name,
                         description: booking.service.description,
                     },
-                    unit_amount: booking.service.price * 100, // Amount in cents
+                    unit_amount: booking.service.price * 100,
                 },
                 quantity: 1,
             })),

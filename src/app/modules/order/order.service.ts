@@ -1,24 +1,55 @@
-// /services/order.service.js
 import Stripe from "stripe";
 import config from "../../config";
+import { Order } from "./order.model";
 
-const stripe = new Stripe(config.stripe_secret_key);
+const stripe = new Stripe(config.stripe_secret_key as string); // Ensure the key is a string
 
-const createOrder = async (orderData) => {
-  const order = new Order(orderData);
+// Define types for order data and parameters
+interface OrderData {
+  shippingDetails: Record<string, any>; // Adjust type based on the shape of shippingDetails
+  cartItems: Array<{ name: string; imageUrl: string; price: number; quantity: number }>;
+  totalAmount: number;
+  email: string;
+}
+
+interface User {
+  role: "ADMIN" | "USER";
+  email: string;
+}
+
+interface StripeSessionData {
+  cartItems: Array<{ name: string; imageUrl: string; price: number; quantity: number }>;
+  shippingDetails: Record<string, any>; // Adjust type
+  email: string;
+}
+
+const createOrder = async ({ shippingDetails, cartItems, totalAmount, email }: OrderData) => {
+  const order = new Order({
+    shippingDetails,
+    items: cartItems,
+    total: totalAmount,
+    email,
+  });
   await order.save();
   return order;
 };
 
-const getOrderHistory = async (email) => {
-  return await Order.find({ email }).sort({ date: -1 });
+const getOrderHistory = async (user: User) => {
+  if (user.role === "ADMIN") {
+    return await Order.find().sort({ date: -1 });
+  }
+  return await Order.find({ email: user.email }).sort({ date: -1 });
 };
 
-const updateOrderStatus = async (orderId, status) => {
+const updateOrderStatus = async (orderId: string, status: string) => {
   return await Order.findByIdAndUpdate(orderId, { status }, { new: true });
 };
 
-const createStripeSession = async (cartItems, shippingDetails, email) => {
+const createStripeSession = async ({
+  cartItems,
+  shippingDetails,
+  email,
+}: StripeSessionData) => {
   const lineItems = cartItems.map((item) => ({
     price_data: {
       currency: "usd",
@@ -36,15 +67,12 @@ const createStripeSession = async (cartItems, shippingDetails, email) => {
     customer_email: email,
     line_items: lineItems,
     mode: "payment",
-    
     metadata: {
       orderId: `${new Date().getTime()}`,
     },
     success_url: `${process.env.CLIENT_URL}/success`,
     cancel_url: `${process.env.CLIENT_URL}/cart`,
   });
-
-  console.log(session)
 
   return session;
 };

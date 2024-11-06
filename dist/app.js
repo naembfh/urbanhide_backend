@@ -10,11 +10,13 @@ const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const userAuth_routes_1 = require("./app/modules/userAuth/userAuth.routes");
 const category_routes_1 = require("./app/modules/category/category.routes");
 const product_routes_1 = require("./app/modules/product/product.routes");
+const review_routes_1 = require("./app/modules/review/review.routes");
+const order_route_1 = require("./app/modules/order/order.route");
 // app
 const app = (0, express_1.default)();
 // cors
 app.use((0, cors_1.default)({
-    origin: "https://urbanhide.vercel.app",
+    origin: "http://localhost:3000",
     credentials: true,
 }));
 // https://urbanhide.vercel.app/
@@ -25,6 +27,8 @@ app.use(express_1.default.json());
 app.use("/api/auth/", userAuth_routes_1.UserAuthRoutes);
 app.use("/api/category/", category_routes_1.categoryRoutes);
 app.use("/api/product/", product_routes_1.ProductRoutes);
+app.use("/api/reviews/", review_routes_1.ReviewRoutes);
+app.use("/api/order/", order_route_1.orderRoutes);
 //Not Found
 app.use(notFound_1.default);
 // global error handler

@@ -61,7 +61,6 @@ const createCheckoutSession = (0, catchAsync_1.default)((req, res) => __awaiter(
     const { bookings, customerEmail } = req.body;
     try {
         const session = yield booking_service_1.BookingService.createCheckoutSession(bookings, customerEmail);
-        console.log(session);
         (0, sendResponse_1.default)(res, {
             success: true,
             statusCode: http_status_1.default.OK,

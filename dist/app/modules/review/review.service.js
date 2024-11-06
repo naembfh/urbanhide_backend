@@ -15,39 +15,34 @@ const review_model_1 = require("./review.model");
 const createReview = (userId, reviewData) => __awaiter(void 0, void 0, void 0, function* () {
     const newReview = yield review_model_1.Review.create({
         user: userId,
+        productId: reviewData.productId, // Add productId
         comment: reviewData.comment,
         rating: reviewData.rating,
     });
     return newReview;
 });
 // Show reviews (optionally filter by user or rating)
-const showReviews = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const reviews = yield review_model_1.Review.find()
-            .populate({
-            path: "user",
-            select: "_id name email img", // Make sure to select the img field if present
-        })
-            .exec();
-        // Format the data before sending the response
-        const formattedReviews = reviews.map((review) => {
-            var _a, _b, _c;
-            return ({
-                _id: review._id,
-                username: ((_a = review.user) === null || _a === void 0 ? void 0 : _a.name) || "Anonymous", // Typecast to 'any' or create a user interface for better type-checking
-                email: ((_b = review.user) === null || _b === void 0 ? void 0 : _b.email) || "N/A",
-                img: ((_c = review.user) === null || _c === void 0 ? void 0 : _c.img) || "/default-avatar.png", // Add a fallback image
-                comment: review.comment,
-                rating: review.rating,
-                createdAt: review.createdAt,
-            });
+const showReviews = (productId) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = productId ? { productId } : {};
+    const reviews = yield review_model_1.Review.find(query)
+        .populate({
+        path: "user",
+        select: "_id name email img",
+    })
+        .exec();
+    const formattedReviews = reviews.map((review) => {
+        var _a, _b, _c;
+        return ({
+            _id: review._id,
+            username: ((_a = review.user) === null || _a === void 0 ? void 0 : _a.name) || "Anonymous",
+            email: ((_b = review.user) === null || _b === void 0 ? void 0 : _b.email) || "N/A",
+            img: ((_c = review.user) === null || _c === void 0 ? void 0 : _c.img) || "/default-avatar.png",
+            rating: review.rating,
+            comment: review.comment,
+            createdAt: review.createdAt,
         });
-        return formattedReviews;
-    }
-    catch (error) {
-        console.error("Error fetching reviews:", error);
-        throw new Error("Unable to fetch reviews");
-    }
+    });
+    return formattedReviews;
 });
 exports.ReviewService = {
     createReview,
