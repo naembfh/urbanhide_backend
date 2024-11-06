@@ -7,6 +7,8 @@ import { UserAuthRoutes } from "./app/modules/userAuth/userAuth.routes";
 import { categoryRoutes } from "./app/modules/category/category.routes";
 import { ProductRoutes } from "./app/modules/product/product.routes";
 import { ReviewRoutes } from "./app/modules/review/review.routes";
+import { orderRoutes } from "./app/modules/order/order.route";
+
 
 // app
 const app = express();
@@ -32,6 +34,7 @@ app.use("/api/auth/", UserAuthRoutes);
 app.use("/api/category/", categoryRoutes);
 app.use("/api/product/", ProductRoutes);
 app.use("/api/reviews/", ReviewRoutes);
+app.use("/api/order/", orderRoutes);
 
 
 //Not Found
