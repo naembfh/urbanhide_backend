@@ -16,7 +16,7 @@ const app = express();
 // cors
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://urbanhide.vercel.app",
     credentials: true,
   })
 );

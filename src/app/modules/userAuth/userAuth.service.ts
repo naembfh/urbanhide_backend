@@ -114,6 +114,7 @@ const updateUserProfile = async (
     user.img = result.secure_url;
   }
 
+
   // Update other user fields
   user.name = updatedData.name || user.name;
   user.email = updatedData.email || user.email;

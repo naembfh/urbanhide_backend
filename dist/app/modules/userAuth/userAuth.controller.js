@@ -20,8 +20,9 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const userAuth_service_1 = require("./userAuth.service");
+const userAuth_model_1 = require("./userAuth.model");
 const signup = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield userAuth_service_1.UserAuthService.signupService(req.body);
+    const user = yield userAuth_service_1.UserAuthService.signupService(req.body, req.file);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -70,7 +71,9 @@ const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('heee');
     const users = yield userAuth_service_1.UserAuthService.getAllUsersService();
+    console.log(users);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -79,8 +82,8 @@ const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     });
 }));
 const updateUserRole = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, newRole } = req.body;
-    const updatedUser = yield userAuth_service_1.UserAuthService.updateUserRoleService(userId, newRole);
+    const { userId, role } = req.body;
+    const updatedUser = yield userAuth_service_1.UserAuthService.updateUserRoleService(userId, role);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -89,14 +92,28 @@ const updateUserRole = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
     });
 }));
 const updateProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.user.userId;
+    const userId = req.body.userId; // Get user ID from authenticated user context
     const updatedData = req.body;
-    const updatedUser = yield userAuth_service_1.UserAuthService.updateUserProfile(userId, updatedData);
+    const file = req.file; // Image file uploaded
+    const updatedUser = yield userAuth_service_1.UserAuthService.updateUserProfile(userId, updatedData, file);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
         message: "Profile updated successfully",
         data: updatedUser,
+    });
+}));
+const deleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const user = yield userAuth_model_1.UserAuth.findByIdAndDelete(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
+    }
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User deleted successfully",
+        data: user,
     });
 }));
 exports.userAuthControllers = {
@@ -106,4 +123,5 @@ exports.userAuthControllers = {
     getAllUsers,
     updateUserRole,
     updateProfile,
+    deleteUser,
 };

@@ -20,8 +20,8 @@ const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinaryConfig_1.default,
     params: {
         folder: 'products', // Folder name in Cloudinary
-        format: () => __awaiter(void 0, void 0, void 0, function* () { return 'png'; }), // Alternatively, you can define a single format
-        allowed_formats: ['jpg', 'jpeg', 'png'],
+        format: () => __awaiter(void 0, void 0, void 0, function* () { return 'webp'; }), // Set WebP as the default format
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'], // Add WebP to allowed formats
     },
 });
 const upload = (0, multer_1.default)({ storage });

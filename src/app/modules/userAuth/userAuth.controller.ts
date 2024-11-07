@@ -71,7 +71,9 @@ const refreshToken = catchAsync(async (req, res) => {
 });
 
 const getAllUsers = catchAsync(async (req, res) => {
+  console.log('heee')
   const users = await UserAuthService.getAllUsersService();
+  console.log(users)
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -99,7 +101,7 @@ const updateUserRole = catchAsync(async (req, res) => {
 });
 
 const updateProfile = catchAsync(async (req, res) => {
-  const userId = req.user.userId; // Get user ID from authenticated user context
+  const userId = req.body.userId; // Get user ID from authenticated user context
   const updatedData = req.body;
   const file = req.file as Express.Multer.File; // Image file uploaded
 

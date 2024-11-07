@@ -18,9 +18,17 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const userAuth_model_1 = require("./userAuth.model");
-const signupService = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('userservc');
-    const newUser = yield userAuth_model_1.UserAuth.create(payload);
+const cloudinaryConfig_1 = __importDefault(require("../../config/cloudinaryConfig"));
+const signupService = (payload, file) => __awaiter(void 0, void 0, void 0, function* () {
+    let imageUrl = '';
+    // Upload image if a file is provided
+    if (file) {
+        const result = yield cloudinaryConfig_1.default.uploader.upload(file.path);
+        imageUrl = result.secure_url;
+    }
+    // const newUser = await UserAuth.create(payload);
+    const newUser = new userAuth_model_1.UserAuth(Object.assign(Object.assign({}, payload), { img: imageUrl }));
+    yield newUser.save();
     return newUser;
 });
 const loginService = (payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -80,16 +88,21 @@ const updateUserRoleService = (userId, newRole) => __awaiter(void 0, void 0, voi
     yield user.save();
     return user;
 });
-const updateUserProfile = (userId, updatedData) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserProfile = (userId, updatedData, file) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield userAuth_model_1.UserAuth.findById(userId);
     if (!user) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found");
     }
-    // Update user fields with the provided data
+    // Handle image upload if a new file is provided
+    if (file) {
+        const result = yield cloudinaryConfig_1.default.uploader.upload(file.path);
+        user.img = result.secure_url;
+    }
+    // Update other user fields
     user.name = updatedData.name || user.name;
+    user.email = updatedData.email || user.email;
     user.phone = updatedData.phone || user.phone;
     user.address = updatedData.address || user.address;
-    user.img = updatedData.img || user.img;
     yield user.save();
     return user;
 });
